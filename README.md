@@ -1,62 +1,116 @@
-# AdonisJS API Starter Kit
+# Backlog Builder SENA API
 
-This repo contains an AdonisJS application tailored for building an API server that responds with JSON.
+API REST para la gestión del backlog de proyectos de aprendices SENA. Permite a instructores y aprendices crear proyectos, épicas, historias de usuario y tareas con trazabilidad completa.
 
-## What's included
+## Stack tecnológico
 
-- TypeScript setup with commands to run developments server using `ts-node + swc` and create production build.
-- ESLint and Prettier setup extending the [AdonisJS tooling config](https://github.com/adonisjs/tooling-config) presets.
-- Ace command line framework.
-- Everything else you get with the core of AdonisJS.
+| Capa | Tecnología |
+|---|---|
+| Runtime | Node.js 20+ |
+| Framework | AdonisJS 6 |
+| Lenguaje | TypeScript 5 |
+| Base de datos | PostgreSQL (Neon serverless) |
+| ORM | Lucid v21 |
+| Autenticación | Access Tokens (JWT-like) |
+| Exportación | ExcelJS (.xlsx) |
 
-On top of the framework core and dev-tooling, the following features are enabled by the API starter kit.
+## Instalación local
 
-- Lucid ORM ( Installed, but not configured )
-- Auth module ( Installed, but not configured )
-- CORS
-- VineJS for validations
+```bash
+# 1. Clonar el repositorio
+git clone <url-del-repo>
+cd backlog_sena_backend
 
-## Usage
+# 2. Instalar dependencias
+npm install
 
-You can create a new app using the `api` boilerplate by executing the following command. The command will perform the following steps.
+# 3. Configurar variables de entorno
+cp .env.example .env
+# Edita .env con tus credenciales de Neon
 
-- Clone the repo
-- Install dependencies
-- Copy `.env.example` to `.env`
-- Set app key using `node ace generate:key` command.
-- Configure `@adonisjs/lucid` package.
-- Install and configure `@adonisjs/session` package (if using auth session guard).
-- Configure `@adonisjs/auth` package.
+# 4. Crear las tablas en la base de datos
+node ace migration:run
 
-```sh
-npm init adonisjs -- -K=api
+# 5. Poblar datos iniciales (roles)
+node ace db:seed --files database/seeders/role_seeder.ts
+
+# 6. Iniciar el servidor en desarrollo
+node ace serve --hmr
 ```
 
-### Configuring Lucid database dialect
+El servidor queda disponible en `http://localhost:3333`.
 
-By default, the `npm init adonisjs` command configures Lucid to use `sqlite`. However, you can define a custom database dialect as follows.
+## Variables de entorno requeridas
 
-```sh
-npm init adonisjs -- -K=api --db=postgres
+Copia `.env.example` a `.env` y completa cada valor:
+
+| Variable | Descripción | Ejemplo |
+|---|---|---|
+| `NODE_ENV` | Entorno de ejecución | `development` |
+| `HOST` | Interfaz de red | `0.0.0.0` |
+| `PORT` | Puerto del servidor | `3333` |
+| `LOG_LEVEL` | Nivel de logs | `info` |
+| `APP_KEY` | Clave de cifrado de la app | generada con `node ace generate:key` |
+| `DB_HOST` | Host de Neon PostgreSQL | `ep-xxxx.us-east-2.aws.neon.tech` |
+| `DB_PORT` | Puerto PostgreSQL | `5432` |
+| `DB_USER` | Usuario de la base de datos | `neondb_owner` |
+| `DB_PASSWORD` | Contraseña de la base de datos | — |
+| `DB_DATABASE` | Nombre de la base de datos | `neondb` |
+| `DB_SSL` | SSL requerido por Neon | `true` |
+
+## Estructura de la base de datos
+
+```
+roles               → Aprendiz / Instructor
+fichas              → Grupos de formación SENA
+usuarios            → Aprendices e instructores
+instructor_ficha    → Relación instructores ↔ fichas
+proyectos           → Proyectos de cada ficha
+epicas              → Épicas de cada proyecto
+historias           → Historias de usuario por épica
+tareas              → Tareas técnicas por historia
+sesiones            → Tokens de sesión personalizados
+auditoria           → Log de cambios con jsonb
 ```
 
-Available options for the `--db` flag.
+## Comandos útiles
 
-- sqlite
-- postgres
-- mysql
-- mssql
-
-### Configuring Auth package guard
-
-By default, the `npm init adonisjs` command configures the Auth package to use `session` guard. However, you can define a custom auth guard as follows.
-
-```sh
-npm init adonisjs -- -K=api --auth-guard=access_tokens
+```bash
+node ace migration:run        # Ejecutar migraciones pendientes
+node ace migration:rollback   # Revertir el último batch
+node ace migration:status     # Ver estado de todas las migraciones
+node ace db:seed --files database/seeders/role_seeder.ts
+node ace serve --hmr          # Servidor con hot-reload
+node ace build                # Compilar para producción
 ```
 
-Available options for the `--auth-guard` flag.
+## Endpoints disponibles
 
-- session
-- basic_auth
-- access_tokens
+> Esta sección se irá completando conforme avance el proyecto.
+
+### Autenticación
+_Por definir_
+
+### Roles
+_Por definir_
+
+### Fichas
+_Por definir_
+
+### Usuarios
+_Por definir_
+
+### Proyectos
+_Por definir_
+
+### Épicas
+_Por definir_
+
+### Historias de usuario
+_Por definir_
+
+### Tareas
+_Por definir_
+
+### Exportación
+_Por definir_ — generación de backlog en `.xlsx`
