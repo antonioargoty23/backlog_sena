@@ -8,52 +8,72 @@ const HistoriasController = () => import('#controllers/historias_controller')
 const TareasController = () => import('#controllers/tareas_controller')
 const InstructorController = () => import('#controllers/instructor_controller')
 
-// ── Salud ────────────────────────────────────────────────────────────────────
+// ── Health check ──────────────────────────────────────────────────────────────
 
 router.get('/', async () => ({ status: 'ok', app: 'Backlog Builder SENA API' }))
 
-// ── Autenticación ─────────────────────────────────────────────────────────────
-
-router.post('/auth/login', [AuthController, 'login'])
-
-router.group(() => {
-  router.delete('/auth/logout', [AuthController, 'logout'])
-  router.get('/auth/me', [AuthController, 'me'])
-}).use(middleware.auth())
-
-// ── Rutas protegidas ──────────────────────────────────────────────────────────
+// ── /api ──────────────────────────────────────────────────────────────────────
 
 router
   .group(() => {
-    // ── Proyectos ────────────────────────────────────────────────────────────
-    router.get('/proyectos', [ProyectosController, 'index'])
-    router.post('/proyectos', [ProyectosController, 'store'])
-    router.get('/proyectos/:id', [ProyectosController, 'show'])
-    router.put('/proyectos/:id', [ProyectosController, 'update'])
-    router.delete('/proyectos/:id', [ProyectosController, 'destroy'])
+    // ── Rutas públicas ───────────────────────────────────────────────────────
+    router.post('/auth/login', [AuthController, 'login'])
+    router.post('/auth/logout', [AuthController, 'logout'])
 
-    // ── Épicas (anidadas bajo proyecto) ───────────────────────────────────────
-    router.get('/proyectos/:proyectoId/epicas', [EpicasController, 'index'])
-    router.post('/proyectos/:proyectoId/epicas', [EpicasController, 'store'])
-    router.get('/proyectos/:proyectoId/epicas/:id', [EpicasController, 'show'])
-    router.put('/proyectos/:proyectoId/epicas/:id', [EpicasController, 'update'])
-    router.delete('/proyectos/:proyectoId/epicas/:id', [EpicasController, 'destroy'])
+    // ── Rutas privadas (requieren token) ─────────────────────────────────────
+    router
+      .group(() => {
+        // Auth
+        router.get('/auth/me', [AuthController, 'me'])
 
-    // ── Historias (anidadas bajo épica) ───────────────────────────────────────
-    router.get('/epicas/:epicaId/historias', [HistoriasController, 'index'])
-    router.post('/epicas/:epicaId/historias', [HistoriasController, 'store'])
-    router.get('/epicas/:epicaId/historias/:id', [HistoriasController, 'show'])
-    router.put('/epicas/:epicaId/historias/:id', [HistoriasController, 'update'])
-    router.delete('/epicas/:epicaId/historias/:id', [HistoriasController, 'destroy'])
+        // ── Proyectos ───────────────────────────────────────────────────────
+        router.get('/proyectos', [ProyectosController, 'index'])
+        router.post('/proyectos', [ProyectosController, 'store'])
+        router.get('/proyectos/:id', [ProyectosController, 'show'])
+        router.put('/proyectos/:id', [ProyectosController, 'update'])
+        router.delete('/proyectos/:id', [ProyectosController, 'destroy'])
+        router.get('/proyectos/:id/backlog', [ProyectosController, 'backlog'])
+        router.get('/proyectos/:id/resumen', [ProyectosController, 'resumen'])
+        router.get('/proyectos/:id/excel', [ProyectosController, 'excel'])
 
-    // ── Tareas (anidadas bajo historia) ───────────────────────────────────────
-    router.get('/historias/:historiaId/tareas', [TareasController, 'index'])
-    router.post('/historias/:historiaId/tareas', [TareasController, 'store'])
-    router.get('/historias/:historiaId/tareas/:id', [TareasController, 'show'])
-    router.put('/historias/:historiaId/tareas/:id', [TareasController, 'update'])
-    router.delete('/historias/:historiaId/tareas/:id', [TareasController, 'destroy'])
+        // ── Épicas  /api/proyectos/:proyectoId/epicas ───────────────────────
+        router
+          .group(() => {
+            router.get('/epicas', [EpicasController, 'index'])
+            router.post('/epicas', [EpicasController, 'store'])
+            router.get('/epicas/:id', [EpicasController, 'show'])
+            router.put('/epicas/:id', [EpicasController, 'update'])
+            router.delete('/epicas/:id', [EpicasController, 'destroy'])
 
-    // ── Instructor ────────────────────────────────────────────────────────────
-    router.get('/instructor/ficha-proyectos', [InstructorController, 'fichaProyectos'])
+            // ── Historias  .../epicas/:epicaId/historias ──────────────────
+            router
+              .group(() => {
+                router.get('/historias', [HistoriasController, 'index'])
+                router.post('/historias', [HistoriasController, 'store'])
+                router.get('/historias/:id', [HistoriasController, 'show'])
+                router.put('/historias/:id', [HistoriasController, 'update'])
+                router.delete('/historias/:id', [HistoriasController, 'destroy'])
+
+                // ── Tareas  .../historias/:historiaId/tareas ──────────────
+                router
+                  .group(() => {
+                    router.get('/tareas', [TareasController, 'index'])
+                    router.post('/tareas', [TareasController, 'store'])
+                    router.get('/tareas/:id', [TareasController, 'show'])
+                    router.put('/tareas/:id', [TareasController, 'update'])
+                    router.delete('/tareas/:id', [TareasController, 'destroy'])
+                  })
+                  .prefix('/historias/:historiaId')
+              })
+              .prefix('/epicas/:epicaId')
+          })
+          .prefix('/proyectos/:proyectoId')
+
+        // ── Instructor ──────────────────────────────────────────────────────
+        router
+          .get('/instructor/ficha-proyectos', [InstructorController, 'fichaProyectos'])
+          .use(middleware.role(['instructor']))
+      })
+      .use(middleware.auth())
   })
-  .use(middleware.auth())
+  .prefix('/api')

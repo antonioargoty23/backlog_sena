@@ -3,6 +3,9 @@ import { SimpleMessagesProvider } from '@vinejs/vine'
 import Proyecto from '#models/proyecto'
 import Usuario from '#models/usuario'
 import { proyectoValidator, proyectoMessages } from '#validators/proyecto_validator'
+import BacklogService from '#services/backlog_service'
+import EstadisticasService from '#services/estadisticas_service'
+import ExcelService from '#services/excel_service'
 
 export default class ProyectosController {
   async index({ auth, response }: HttpContext) {
@@ -130,5 +133,32 @@ export default class ProyectosController {
     await proyecto.merge({ activo: false }).save()
 
     return response.ok({ success: true, data: { mensaje: 'Proyecto eliminado correctamente' } })
+  }
+
+  // ── Backlog ───────────────────────────────────────────────────────────────────
+
+  async backlog({ params, response }: HttpContext) {
+    const data = await BacklogService.obtenerBacklogCompleto(params.id)
+    return response.ok({ success: true, data })
+  }
+
+  // ── Resumen / estadísticas ────────────────────────────────────────────────────
+
+  async resumen({ params, response }: HttpContext) {
+    const data = await EstadisticasService.resumenProyecto(params.id)
+    return response.ok({ success: true, data })
+  }
+
+  // ── Excel ─────────────────────────────────────────────────────────────────────
+
+  async excel({ params, response }: HttpContext) {
+    const buffer = await ExcelService.generarExcel(params.id)
+
+    response.header(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response.header('Content-Disposition', `attachment; filename="backlog-${params.id}.xlsx"`)
+    return response.send(buffer)
   }
 }

@@ -57,11 +57,16 @@ export default class AuthController {
   }
 
   /**
-   * DELETE /auth/logout
-   * Invalida el token actual. AuthMiddleware ya autenticó al usuario.
+   * POST /api/auth/logout
+   * Invalida el token si está presente y es válido. Responde 200 en cualquier caso.
    */
   async logout({ auth, response }: HttpContext) {
-    await auth.use('api').invalidateToken()
+    try {
+      await auth.use('api').authenticate()
+      await auth.use('api').invalidateToken()
+    } catch {
+      // Token ausente o ya inválido — se trata como sesión ya cerrada
+    }
     return response.ok({ mensaje: 'Sesión cerrada correctamente' })
   }
 
