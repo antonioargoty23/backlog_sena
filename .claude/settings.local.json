@@ -3,7 +3,9 @@
     "allow": [
       "PowerShell(npm init adonisjs@latest . -- --kit=api --db=postgres 2>&1)",
       "PowerShell($env:NODE_TLS_REJECT_UNAUTHORIZED = \"0\"; npm init adonisjs@2.4.1 . -- -K github:adonisjs/api-starter-kit --db=postgres --auth-guard=access_token --pkg=npm 2>&1)",
-      "Bash(curl -L --insecure -o api-starter-kit.tar.gz \"https://api.github.com/repos/adonisjs/api-starter-kit/tarball/main\")"
+      "Bash(curl -L --insecure -o api-starter-kit.tar.gz \"https://api.github.com/repos/adonisjs/api-starter-kit/tarball/main\")",
+      "Bash(node ace *)",
+      "Bash(npx tsc *)"
     ]
   }
 }
