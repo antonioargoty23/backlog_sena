@@ -7,6 +7,7 @@ const EpicasController = () => import('#controllers/epicas_controller')
 const HistoriasController = () => import('#controllers/historias_controller')
 const TareasController = () => import('#controllers/tareas_controller')
 const InstructorController = () => import('#controllers/instructor_controller')
+const FichasController = () => import('#controllers/fichas_controller')
 
 // ── Health check ──────────────────────────────────────────────────────────────
 
@@ -68,6 +69,10 @@ router
               .prefix('/epicas/:epicaId')
           })
           .prefix('/proyectos/:proyectoId')
+
+        // ── Fichas ─────────────────────────────────────────────────────────
+        router.get('/fichas', [FichasController, 'index'])
+        router.post('/fichas', [FichasController, 'store'])
 
         // ── Instructor ──────────────────────────────────────────────────────
         router
