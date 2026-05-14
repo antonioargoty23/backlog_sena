@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backlog Builder · SENA</title>
+
+<!-- Fuentes -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- SheetJS para exportar Excel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- Estilos propios -->
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════
+     HEADER PRINCIPAL
+     ════════════════════════════════════════════════════════════ -->
+<header class="app-header">
+
+  <!-- Zona de marca SENA + toggle sidebar -->
+  <div class="header-brand" id="header-brand">
+    <img src="assets/logoSena.png" alt="SENA" class="brand-logo">
+    <div class="brand-text">
+      <div class="brand-name">SENA <strong>CTPI</strong> </div>
+      <div class="brand-subtitle">PRODUCT BACKLOG DEL PROYECTO FORMATIVO</div>
+    </div>
+  </div>
+
+  <!-- Botón retráctil del sidebar -->
+  <button class="sidebar-toggle" onclick="toggleSidebar()" title="Expandir/colapsar panel">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="3" y1="6"  x2="21" y2="6"/>
+      <line x1="3" y1="12" x2="21" y2="12"/>
+      <line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+
+  <!-- Tabs de navegación -->
+  <nav class="header-nav">
+    <button class="nav-tab active" onclick="switchVista('backlog')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+      </svg>
+      Product Backlog
+    </button>
+    <button class="nav-tab" onclick="switchVista('tareas')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 11 12 14 22 4"/>
+        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+      </svg>
+      Tareas
+    </button>
+  </nav>
+
+  <!-- Botones de acción + iconos -->
+  <div class="header-actions">
+    <button class="btn-header btn-epica" onclick="abrirModalEpica()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="15" height="15">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Épica
+    </button>
+    <button class="btn-header btn-historia" onclick="abrirModalHU()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="15" height="15">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Historia
+    </button>
+    <button class="btn-header btn-xlsx" onclick="exportarExcel()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Descargar .xlsx
+    </button>
+
+    <div class="header-icons">
+      <button class="icon-btn" title="Notificaciones">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 01-3.46 0"/>
+        </svg>
+      </button>
+      <button class="icon-btn" title="Ayuda">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </button>
+      <button class="icon-btn" title="Perfil">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════════════════════════
+     SUBHEADER — datos del proyecto
+     ════════════════════════════════════════════════════════════ -->
+<div class="app-subheader">
+  <div class="subheader-field">
+    <div class="subheader-label">Proyecto</div>
+    <div class="subheader-value">
+      <input id="inp-proyecto" type="text" placeholder="Nombre del proyecto…">
+      <button class="edit-icon" title="Editar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="subheader-sep"></div>
+
+  <div class="subheader-field">
+    <div class="subheader-label">Dueño / Product Owner</div>
+    <div class="subheader-value">
+      <input id="inp-dueno" type="text" placeholder="Nombre del responsable…">
+      <button class="edit-icon" title="Editar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <button class="project-info-toggle">
+    Ver información del proyecto
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  </button>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     APP BODY
+     ════════════════════════════════════════════════════════════ -->
+<div class="app-body">
+
+  <!-- SIDEBAR IZQUIERDO — Épicas & Historias (retráctil) -->
+  <aside class="app-sidebar" id="app-sidebar">
+    <div class="sidebar-inner">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Épicas e Historias</span>
+        <button class="sidebar-filter-btn" title="Filtrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6"/>
+            <line x1="8" y1="12" x2="21" y2="12"/>
+            <line x1="8" y1="18" x2="21" y2="18"/>
+            <line x1="3" y1="6" x2="3.01" y2="6"/>
+            <line x1="3" y1="12" x2="3.01" y2="12"/>
+            <line x1="3" y1="18" x2="3.01" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="sidebar-body" id="sidebar-body">
+        <!-- Renderizado por JS -->
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ VISTA: PRODUCT BACKLOG ══ -->
+  <div class="view active" id="view-backlog">
+    <div class="app-main">
+      <div class="backlog-content">
+
+        <!-- Título sección -->
+        <div>
+          <div class="backlog-title-row">
+            <div class="backlog-title-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="backlog-title">Backlog del producto</div>
+              <div class="backlog-subtitle">Vista construida automáticamente al editar</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stat cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon epicas">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                <polyline points="2 17 12 22 22 17"/>
+                <polyline points="2 12 12 17 22 12"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-val" id="stat-epicas">0</div>
+              <div class="stat-lbl">Épicas</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon historias">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-val" id="stat-historias">0</div>
+              <div class="stat-lbl">Historias</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon sp">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-val" id="stat-sp">0</div>
+              <div class="stat-lbl">Story Points</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon sprints">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8"  y1="2" x2="8"  y2="6"/>
+                <line x1="3"  y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-val" id="stat-sprints">0</div>
+              <div class="stat-lbl">Sprints</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tablas de épicas -->
+        <div id="backlog-tables">
+          <!-- Renderizado por JS -->
+        </div>
+
+      </div><!-- /backlog-content -->
+    </div><!-- /app-main -->
+  </div><!-- /view-backlog -->
+
+  <!-- ══ VISTA: TAREAS ══ -->
+  <div class="view" id="view-tareas">
+    <div class="tareas-layout">
+
+      <!-- Sidebar de historias para tareas -->
+      <div class="tareas-sidebar">
+        <div class="sidebar-title" style="margin-bottom:10px">Historias de usuario</div>
+        <div id="hu-selector-list">
+          <!-- Renderizado por JS -->
+        </div>
+      </div>
+
+      <!-- Contenido de tareas -->
+      <div class="tareas-main" id="tareas-main-content">
+        <div class="empty-state">
+          <div class="es-icon">⚙️</div>
+          <h3>Selecciona una historia de usuario</h3>
+          <p>Verás aquí las tareas asociadas y podrás agregar nuevas.</p>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /view-tareas -->
+
+</div><!-- /app-body -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     MODAL — NUEVA ÉPICA
+     ════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-epica">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">
+        <span class="modal-title-badge ep">EP</span>
+        Nueva Épica
+      </div>
+      <button class="close-btn" onclick="closeModal('modal-epica')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-label">ID Épica</label>
+        <input id="m-ep-id" class="form-input mono" type="text" placeholder="EP07">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Título de la Épica</label>
+        <input id="m-ep-titulo" class="form-input" type="text" placeholder="Ej. Gestión de reportes académicos">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Como (Rol de la épica)</label>
+        <input id="m-ep-rol" class="form-input" type="text" placeholder="Ej. Como coordinador académico,">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Deseo…</label>
+        <textarea id="m-ep-deseo" class="form-textarea" placeholder="Deseo poder gestionar y visualizar reportes académicos…"></textarea>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Para…</label>
+        <textarea id="m-ep-para" class="form-textarea" placeholder="Para tomar decisiones basadas en datos reales del proceso formativo."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="closeModal('modal-epica')">Cancelar</button>
+      <button class="btn-modal-save" onclick="guardarEpica()">Guardar épica</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     MODAL — NUEVA / EDITAR HISTORIA DE USUARIO
+     ════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-hu">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">
+        <span class="modal-title-badge hu">HU</span>
+        Historia de Usuario
+      </div>
+      <button class="close-btn" onclick="closeModal('modal-hu')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-row">
+          <label class="form-label">ID Historia</label>
+          <input id="m-hu-id" class="form-input mono" type="text" placeholder="H23">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Épica a la que pertenece</label>
+          <select id="m-hu-epica" class="form-select"></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Nombre de la Historia</label>
+        <input id="m-hu-nombre" class="form-input" type="text" placeholder="Ej. Consulta de notas por período">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Como (Rol)</label>
+        <input id="m-hu-rol" class="form-input" type="text" placeholder="Aprendiz">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Deseo…</label>
+        <textarea id="m-hu-deseo" class="form-textarea" placeholder="Deseo consultar mis notas de cada competencia…"></textarea>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Para…</label>
+        <textarea id="m-hu-para" class="form-textarea" placeholder="Para conocer mi progreso académico en tiempo real…"></textarea>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Criterios de Aceptación</label>
+        <textarea id="m-hu-criterios" class="form-textarea" style="min-height:90px"
+          placeholder="El sistema muestra las notas por período.&#10;Solo el aprendiz autenticado ve sus notas.&#10;Si no hay notas registradas se muestra mensaje."></textarea>
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label class="form-label">Prioridad</label>
+          <select id="m-hu-prioridad" class="form-select">
+            <option value="Alta">Alta</option>
+            <option value="Media">Media</option>
+            <option value="Baja">Baja</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Story Points</label>
+          <select id="m-hu-sp" class="form-select">
+            <option>1</option><option>2</option><option>3</option>
+            <option>5</option><option>8</option><option>13</option>
+            <option>20</option><option>40</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Sprint #</label>
+          <input id="m-hu-sprint" class="form-input" type="number" min="1" placeholder="1">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Estado</label>
+          <select id="m-hu-estado" class="form-select">
+            <option>Por hacer</option>
+            <option>En progreso</option>
+            <option>Hecho</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Responsable</label>
+        <input id="m-hu-responsable" class="form-input" type="text" placeholder="Nombre del integrante">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Comentarios</label>
+        <textarea id="m-hu-comentarios" class="form-textarea" style="min-height:50px" placeholder="Observaciones adicionales…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="closeModal('modal-hu')">Cancelar</button>
+      <button class="btn-modal-save" onclick="guardarHU()">Guardar historia</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     MODAL — NUEVA TAREA
+     ════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-tarea">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">
+        <span class="modal-title-badge tr">TR</span>
+        Nueva Tarea
+      </div>
+      <button class="close-btn" onclick="closeModal('modal-tarea')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-row">
+          <label class="form-label">ID Tarea</label>
+          <input id="m-tr-id" class="form-input mono" type="text" placeholder="TR23">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Tipo</label>
+          <select id="m-tr-tipo" class="form-select">
+            <option>RF</option>
+            <option>RNF</option>
+            <option>RF/RNF</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Nombre de la tarea</label>
+        <input id="m-tr-nombre" class="form-input" type="text" placeholder="Ej. Diseño de mockup pantalla principal">
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label class="form-label">Estimación (días)</label>
+          <input id="m-tr-est" class="form-input" type="number" min="0.5" step="0.5" placeholder="2">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Prioridad</label>
+          <select id="m-tr-prio" class="form-select">
+            <option>ALTA</option><option>MEDIA</option><option>BAJA</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Responsable</label>
+        <input id="m-tr-resp" class="form-input" type="text" placeholder="Nombre del integrante">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Dependencias (ID de tareas)</label>
+        <input id="m-tr-dep" class="form-input" type="text" placeholder="TR01, TR05">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Estado (%)</label>
+        <input id="m-tr-estado" class="form-input" type="number" min="0" max="100" placeholder="0">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Condición de aprobación</label>
+        <textarea id="m-tr-condicion" class="form-textarea" style="min-height:56px"
+          placeholder="Ej. Validado por el instructor y aprobado en revisión de par."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="closeModal('modal-tarea')">Cancelar</button>
+      <button class="btn-modal-save" onclick="guardarTarea()">Guardar tarea</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast de confirmación -->
+<div class="toast" id="toast"></div>
+
+<!-- Scripts propios -->
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
