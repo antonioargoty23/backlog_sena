@@ -27,6 +27,9 @@ export default class Proyecto extends BaseModel {
   declare descripcion: string | null
 
   @column()
+  declare integrantes: string | null
+
+  @column()
   declare activo: boolean
 
   @column.dateTime({ autoCreate: true })
