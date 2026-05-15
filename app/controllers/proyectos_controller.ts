@@ -47,17 +47,20 @@ export default class ProyectosController {
       messagesProvider: new SimpleMessagesProvider(proyectoMessages, {}),
     })
 
-    const dueno = await Usuario.find(payload.dueno_id)
-    if (!dueno) {
-      return response.notFound({ success: false, message: 'El usuario dueño no existe' })
+    // Resuelve el nombre del dueño: texto libre si viene, o nombre del usuario dueno_id
+    let duenoNombre = payload.dueno ?? ''
+    if (!duenoNombre && payload.dueno_id) {
+      const duenoUsuario = await Usuario.find(payload.dueno_id)
+      if (duenoUsuario) duenoNombre = `${duenoUsuario.nombre} ${duenoUsuario.apellido}`
     }
 
     const proyecto = await Proyecto.create({
-      nombre: payload.nombre,
+      nombre:      payload.nombre,
       descripcion: payload.descripcion,
-      fichaId: payload.ficha_id,
-      liderId: usuario.id,
-      dueno: `${dueno.nombre} ${dueno.apellido}`,
+      integrantes: payload.integrantes,
+      fichaId:     payload.ficha_id,
+      liderId:     usuario.id,
+      dueno:       duenoNombre,
     })
 
     return response.created({ success: true, data: proyecto })
@@ -97,17 +100,20 @@ export default class ProyectosController {
       messagesProvider: new SimpleMessagesProvider(proyectoMessages, {}),
     })
 
-    const dueno = await Usuario.find(payload.dueno_id)
-    if (!dueno) {
-      return response.notFound({ success: false, message: 'El usuario dueño no existe' })
+    // Resuelve el nombre del dueño: texto libre si viene, o nombre del usuario dueno_id
+    let duenoNombre = payload.dueno ?? proyecto.dueno
+    if (payload.dueno_id && !payload.dueno) {
+      const duenoUsuario = await Usuario.find(payload.dueno_id)
+      if (duenoUsuario) duenoNombre = `${duenoUsuario.nombre} ${duenoUsuario.apellido}`
     }
 
     await proyecto
       .merge({
-        nombre: payload.nombre,
+        nombre:      payload.nombre,
         descripcion: payload.descripcion,
-        fichaId: payload.ficha_id,
-        dueno: `${dueno.nombre} ${dueno.apellido}`,
+        integrantes: payload.integrantes,
+        fichaId:     payload.ficha_id,
+        dueno:       duenoNombre,
       })
       .save()
 
