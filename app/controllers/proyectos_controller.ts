@@ -55,12 +55,12 @@ export default class ProyectosController {
     }
 
     const proyecto = await Proyecto.create({
-      nombre:      payload.nombre,
+      nombre: payload.nombre,
       descripcion: payload.descripcion,
       integrantes: payload.integrantes,
-      fichaId:     payload.ficha_id,
-      liderId:     usuario.id,
-      dueno:       duenoNombre,
+      fichaId: payload.ficha_id,
+      liderId: usuario.id,
+      dueno: duenoNombre,
     })
 
     return response.created({ success: true, data: proyecto })
@@ -109,11 +109,11 @@ export default class ProyectosController {
 
     await proyecto
       .merge({
-        nombre:      payload.nombre,
+        nombre: payload.nombre,
         descripcion: payload.descripcion,
         integrantes: payload.integrantes,
-        fichaId:     payload.ficha_id,
-        dueno:       duenoNombre,
+        fichaId: payload.ficha_id,
+        dueno: duenoNombre,
       })
       .save()
 

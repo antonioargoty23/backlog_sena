@@ -78,6 +78,8 @@ router
         // ── Usuarios ────────────────────────────────────────────────────────
         router.get('/usuarios', [UsuariosController, 'index'])
         router.post('/usuarios', [UsuariosController, 'store'])
+        router.delete('/usuarios/:id', [UsuariosController, 'destroy'])
+        router.patch('/usuarios/:id/toggle-activo', [UsuariosController, 'toggleActivo'])
 
         // ── Instructor ──────────────────────────────────────────────────────
         router

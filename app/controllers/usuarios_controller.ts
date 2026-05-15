@@ -54,12 +54,14 @@ export default class UsuariosController {
       })
     }
 
-    const rol = await Role.query().where('nombre', 'instructor').firstOrFail()
+    const rolNombre = payload.rol ?? 'instructor'
+    const rol = await Role.query().where('nombre', rolNombre).firstOrFail()
 
     const usuario = await Usuario.create({
       nombre:       payload.nombre,
       apellido:     payload.apellido,
       email:        payload.email,
+      documento:    payload.documento,
       passwordHash: await hash.make(payload.password),
       rolId:        rol.id,
       fichaId:      payload.ficha_id ?? null,
@@ -76,5 +78,17 @@ export default class UsuariosController {
         rol:      rol.nombre,
       },
     })
+  }
+
+  async destroy({ params, response }: HttpContext) {
+    const usuario = await Usuario.findOrFail(params.id)
+    await usuario.delete()
+    return response.ok({ success: true })
+  }
+
+  async toggleActivo({ params, response }: HttpContext) {
+    const usuario = await Usuario.findOrFail(params.id)
+    await usuario.merge({ activo: !usuario.activo }).save()
+    return response.ok({ success: true, activo: usuario.activo })
   }
 }
